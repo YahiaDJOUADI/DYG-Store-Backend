@@ -1,5 +1,9 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
+
+// Hardcoded JWT secret key
+const JWT_SECRET = "fheuifheiuhinvqpngatfvegfd";
 
 // Get all users
 exports.getUsers = async (req, res) => {
@@ -34,30 +38,29 @@ exports.getUser = async (req, res) => {
 // Add a new user
 exports.addUser = async (req, res) => {
   try {
-    const { userName, email, phone, password, birthdate, gender } = req.body;
+    const { userName, email, phone, password } = req.body;
 
     // Check if the user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ error: "User already exists with this email" });
     }
- 
+
+    // Hash the password
+    const salt = await bcrypt.genSalt(10); // Generate a salt
+    const hashedPassword = await bcrypt.hash(password, salt); // Hash the password
+
     // Create a new user
     const newUser = new User({
       userName,
       email,
       phone,
-      password,
-      birthdate,
-      gender,
+      password: hashedPassword, // Save the hashed password
       type: "user", // Default type is 'user'
     });
 
     // Save the user to the database
     await newUser.save();
-
-    // Hardcoded JWT secret key
-    const JWT_SECRET = "fheuifheiuhinvqpngatfvegfd";
 
     // Generate JWT token
     const token = jwt.sign({ id: newUser._id }, JWT_SECRET);
@@ -69,8 +72,6 @@ exports.addUser = async (req, res) => {
         userName: newUser.userName,
         email: newUser.email,
         phone: newUser.phone,
-        birthdate: newUser.birthdate,
-        gender: newUser.gender,
         type: newUser.type,
       },
     });
@@ -109,6 +110,12 @@ exports.updateUser = async (req, res) => {
       return res.status(400).json({ error: "User ID is required" });
     }
 
+    // Hash the password if it's being updated
+    if (req.body.password) {
+      const salt = await bcrypt.genSalt(10);
+      req.body.password = await bcrypt.hash(req.body.password, salt);
+    }
+
     const updatedUser = await User.findByIdAndUpdate(userId, req.body, {
       new: true, // Return the updated user
     });
@@ -128,18 +135,25 @@ exports.updateUser = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email, password });
 
-    if (user) {
-      // Hardcoded JWT secret key
-      const JWT_SECRET = "fheuifheiuhinvqpngatfvegfd";
+    // Find the user by email
+    const user = await User.findOne({ email });
 
-      // Generate JWT token
-      const token = jwt.sign({ id: user._id }, JWT_SECRET);
-      res.json({ token });
-    } else {
-      res.status(401).json({ message: "Invalid email or password" });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid email or password" });
     }
+
+    // Compare the provided password with the hashed password in the database
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign({ id: user._id }, JWT_SECRET);
+
+    res.json({ token });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
   }
@@ -155,9 +169,6 @@ exports.myAccount = async (req, res) => {
       return res.status(401).json({ error: "No token provided" });
     }
 
-    // Hardcoded JWT secret key
-    const JWT_SECRET = "fheuifheiuhinvqpngatfvegfd";
-
     // Verify the JWT token
     const decoded = jwt.verify(token, JWT_SECRET);
 
@@ -172,17 +183,14 @@ exports.myAccount = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Return user details including the ID and profile picture
+    // Return user details
     res.status(200).json({
       user: {
         _id: user._id,
         userName: user.userName,
         email: user.email,
         phone: user.phone,
-        birthdate: user.birthdate,
-        gender: user.gender,
         type: user.type,
-        profilePicture: user.profilePicture, // Return the relative path
       },
     });
   } catch (error) {

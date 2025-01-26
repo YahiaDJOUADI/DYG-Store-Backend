@@ -1,7 +1,6 @@
 const express = require("express");
 const orderController = require("../controllers/orderController");
 const authMiddleware = require("../middlewares/authMiddleware");
-const cartMiddleware = require("../middlewares/cartMiddleware");
 
 const router = express.Router();
 
@@ -11,7 +10,10 @@ const router = express.Router();
 router.get("/orders", authMiddleware, orderController.getOrders);
 
 // Create a new order (for both authenticated users and guests)
-router.post("/orders", cartMiddleware, orderController.createOrder);
+router.post("/orders", orderController.createOrder);
+
+// Get orders for a specific user (authenticated or guest)
+router.get("/orders/user", orderController.getUserOrders);
 
 // Delete an order (for authenticated users only)
 router.delete("/orders/:orderId", authMiddleware, orderController.deleteOrder);

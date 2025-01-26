@@ -1,6 +1,4 @@
 const Order = require("../models/Order");
-const Cart = require("../models/Cart");
-const GuestCart = require("../models/GuestCart");
 
 // Create a new order
 const createOrder = async (req, res) => {
@@ -45,13 +43,6 @@ const createOrder = async (req, res) => {
 
     await order.save();
 
-    // Clear the cart
-    if (req.user) {
-      await Cart.findOneAndDelete({ user: req.user._id });
-    } else {
-      await GuestCart.findOneAndDelete({ sessionId: req.guestCartId });
-    }
-
     // Return success response
     res.status(201).json({
       message: "Order created successfully!",
@@ -75,12 +66,29 @@ const getOrders = async (req, res) => {
   }
 };
 
+// Get orders for a specific user (authenticated or guest)
+const getUserOrders = async (req, res) => {
+  try {
+    const { userId, sessionId } = req.query;
+
+    // Fetch orders based on user ID or session ID
+    const orders = await Order.find({
+      $or: [{ user: userId }, { sessionId }],
+    });
+
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
+    res.status(500).json({ message: "Failed to fetch user orders." });
+  }
+};
+
 // Delete an order
 const deleteOrder = async (req, res) => {
   const { orderId } = req.params;
 
   try {
-    // Find the order by ID (remove the user filter if deletion is allowed for all users)
+    // Find the order by ID
     const order = await Order.findOne({ _id: orderId });
 
     if (!order) {
@@ -108,7 +116,7 @@ const updateOrderStatus = async (req, res) => {
       return res.status(400).json({ message: "Invalid status." });
     }
 
-    // Update the order status directly
+    // Update the order status
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
       { status },
@@ -158,6 +166,7 @@ const updatePaymentStatus = async (req, res) => {
 module.exports = {
   createOrder,
   getOrders,
+  getUserOrders,
   deleteOrder,
   updateOrderStatus,
   updatePaymentStatus,
