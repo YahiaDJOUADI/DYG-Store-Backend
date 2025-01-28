@@ -1,26 +1,20 @@
 const express = require("express");
-
+const router = express.Router();
 const usersController = require("../controllers/usersController");
 const authMiddleware = require("../middlewares/authMiddleware");
-
-const router = express.Router();
-
+const validationMiddleware = require("../middlewares/validationMiddleware");
+const { addUserSchema, updateUserSchema, loginSchema } = require("../validations/userValidation");
 
 // Public routes (no authentication needed)
-router.post("/users",  usersController.addUser); // Add a new user
-router.post("/login", usersController.login);
+router.post("/users", validationMiddleware(addUserSchema), usersController.addUser); 
+router.post("/login", validationMiddleware(loginSchema), usersController.login); 
 
-// Protected routes (authentication required)
-router.get("/users", authMiddleware, usersController.getUsers);
-router.get("/users/:id", authMiddleware, usersController.getUser);
-router.put("/users/:id", authMiddleware, usersController.updateUser);
-router.delete("/users/:id", authMiddleware, usersController.deleteUser);
-
-// New route for promoting a user to admin, with an added check for the logged-in user's role
-router.patch("/users/:id/promote", authMiddleware, usersController.promoteToAdmin);
-
-// Protected route for getting authenticated user's details
-router.get("/myAccount", authMiddleware, usersController.myAccount);
-
+// Protected routes (require authentication)
+router.get("/users", authMiddleware, usersController.getUsers); 
+router.get("/users/:id", authMiddleware, usersController.getUser); 
+router.put("/users/:id", authMiddleware, validationMiddleware(updateUserSchema), usersController.updateUser); 
+router.delete("/users/:id", authMiddleware, usersController.deleteUser); 
+router.patch("/users/:id/promote", authMiddleware, usersController.promoteToAdmin); 
+router.get("/myAccount", authMiddleware, usersController.myAccount); 
 
 module.exports = router;

@@ -1,27 +1,20 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const cookieParser = require("cookie-parser");
+
 const app = express();
 require("dotenv").config();
 
 // Import Routes
 const usersRoute = require("./routes/usersRoute");
 const productsRoute = require("./routes/productsRoute");
-
 const messageRoutes = require("./routes/messageRoutes");
 const orderRoute = require("./routes/orderRoute");
 
 // Middleware
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    credentials: true,
-  })
-);
-app.use(cookieParser());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors())
+app.use(express.json())
+
 
 // Serve Static Files
 app.use("/public", express.static("public"));
@@ -29,9 +22,11 @@ app.use("/public", express.static("public"));
 // Routes
 app.use(usersRoute);
 app.use(productsRoute);
-
 app.use(messageRoutes);
 app.use(orderRoute);
+// erors middlewares
+app.use(require('./middlewares/notFoundMiddleware'))
+app.use(require('./middlewares/errorMiddleware'))
 
 // Connect to MongoDB
 mongoose
