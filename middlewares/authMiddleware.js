@@ -12,7 +12,7 @@ const authMiddleware = async (req, res, next) => {
     }
 
     // Verify the JWT token
-    const decoded = jwt.verify(token, "fheuifheiuhinvqpngatfvegfd"); // Replace with your secret key
+    const decoded = jwt.verify(token, "fheuifheiuhinvqpngatfvegfd");
 
     // Check if the token is valid
     if (!decoded || !decoded.id) {
@@ -28,7 +28,7 @@ const authMiddleware = async (req, res, next) => {
     // Attach the user to the request object
     req.user = user;
 
-    next(); // Proceed to the next middleware/route
+    next(); 
   } catch (error) {
     console.error("Authentication error:", error);
     return res.status(500).json({ error: "Internal server error" });

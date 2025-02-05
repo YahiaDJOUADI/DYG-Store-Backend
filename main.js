@@ -10,6 +10,8 @@ const usersRoute = require("./routes/usersRoute");
 const productsRoute = require("./routes/productsRoute");
 const messageRoutes = require("./routes/messageRoutes");
 const orderRoute = require("./routes/orderRoute");
+const wishlistRoutes = require("./routes/wishlistRoutes")
+const dashboardRoute = require("./routes/dashboardRoute")
 
 // Middleware
 app.use(cors())
@@ -24,6 +26,8 @@ app.use(usersRoute);
 app.use(productsRoute);
 app.use(messageRoutes);
 app.use(orderRoute);
+app.use(wishlistRoutes)
+app.use(dashboardRoute)
 // erors middlewares
 app.use(require('./middlewares/notFoundMiddleware'))
 app.use(require('./middlewares/errorMiddleware'))

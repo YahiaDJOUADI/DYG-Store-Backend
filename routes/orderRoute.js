@@ -1,13 +1,15 @@
 const express = require("express");
 const orderController = require("../controllers/orderController");
 const authMiddleware = require("../middlewares/authMiddleware");
+const adminMiddleware = require("../middlewares/adminMiddelware");
+const validationMiddleware = require("../middlewares/validationMiddleware");
+const { createOrderSchema } = require("../validations/orderValidation");
 
 const router = express.Router();
 
-// Define routes for orders
 
-// Get all orders (for authenticated users only)
-router.get("/orders", authMiddleware, orderController.getOrders);
+// Get all orders (for admin only)
+router.get("/orders", authMiddleware,adminMiddleware,validationMiddleware(createOrderSchema), orderController.getOrders);
 
 // Create a new order (for both authenticated users and guests)
 router.post("/orders", orderController.createOrder);
@@ -16,12 +18,10 @@ router.post("/orders", orderController.createOrder);
 router.get("/orders/user", orderController.getUserOrders);
 
 // Delete an order (for authenticated users only)
-router.delete("/orders/:orderId", authMiddleware, orderController.deleteOrder);
+router.delete("/orders/:orderId", authMiddleware,adminMiddleware, orderController.deleteOrder);
 
-// Update order status (for authenticated users only)
-router.patch("/orders/:orderId/status", authMiddleware, orderController.updateOrderStatus);
+// Update order status (for authenticated admin only)
+router.patch("/orders/:orderId/status", authMiddleware,adminMiddleware, orderController.updateOrderStatus);
 
-// Update payment status (for authenticated users only)
-router.patch("/orders/:orderId/payment-status", authMiddleware, orderController.updatePaymentStatus);
 
 module.exports = router;

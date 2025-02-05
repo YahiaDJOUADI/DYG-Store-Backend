@@ -8,6 +8,7 @@ const {
   createProductSchema,
   updateProductSchema,
 } = require("../validations/productValidation");
+const adminMiddleware = require("../middlewares/adminMiddelware");
 
 const router = express.Router();
 const upload = multer({ dest: "./public/uploads" });
@@ -16,7 +17,7 @@ router.get("/products", productController.getProducts);
 
 router.post(
   "/products",
-  authMiddleware,
+  authMiddleware,adminMiddleware,
   upload.single("image"),
   validationMiddleware(createProductSchema),
   productController.createProduct
@@ -30,7 +31,7 @@ router.get(
 
 router.put(
   "/products/:id",
-  authMiddleware,
+  authMiddleware,adminMiddleware,
   validObjectIdMiddleware,
   upload.single("image"),
   validationMiddleware(updateProductSchema),
@@ -39,7 +40,7 @@ router.put(
 
 router.delete(
   "/products/:id",
-  authMiddleware,
+  authMiddleware,adminMiddleware,
   validObjectIdMiddleware,
   productController.deleteProduct
 );

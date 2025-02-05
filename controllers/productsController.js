@@ -81,7 +81,6 @@ exports.updateProduct = async (req, res, next) => {
       category: req.body.category,
     };
 
-   
     if (req.file) {
       updateData.image = req.file.path;
     }

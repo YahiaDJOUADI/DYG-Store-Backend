@@ -5,11 +5,7 @@ const orderSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: false, // Optional for guest orders
-    },
-    sessionId: {
-      type: String,
-      required: false, // For guest orders
+      required: false,
     },
     products: [
       {
@@ -21,41 +17,41 @@ const orderSchema = new mongoose.Schema(
         quantity: {
           type: Number,
           required: true,
-          min: 1, // Ensure quantity is at least 1
+          min: 1,
         },
         price: {
           type: Number,
-          required: true, // Price per product at the time of order
-          min: 0, // Ensure price is non-negative
+          required: true,
+          min: 0,
         },
       },
     ],
     totalPrice: {
       type: Number,
       required: true,
-      min: 0, // Ensure total price is non-negative
+      min: 0,
     },
     // Customer Details
     name: {
       type: String,
       required: true,
-      trim: true, // Remove unnecessary whitespace
+      trim: true,
     },
     phone: {
       type: String,
       required: true,
-      trim: true, // Remove unnecessary whitespace
+      trim: true,
     },
     // Algerian Address Details
     wilaya: {
       type: String,
-      required: true, // Wilaya is required
-      trim: true, // Remove unnecessary whitespace
+      required: true,
+      trim: true,
     },
     address: {
       type: String,
-      required: true, // Full address for delivery
-      trim: true, // Remove unnecessary whitespace
+      required: true,
+      trim: true,
     },
     // Order Status
     status: {
@@ -70,16 +66,11 @@ const orderSchema = new mongoose.Schema(
     },
     deliveryDate: {
       type: Date,
-      required: false, // Will be updated once the order is shipped
-    },
-    // Payment Status
-    isPaid: {
-      type: Boolean,
-      default: false, // Will be updated to true once payment is received on delivery
+      required: false,
     },
   },
   {
-    timestamps: true, // Automatically add `createdAt` and `updatedAt` fields
+    timestamps: true,
   }
 );
 
