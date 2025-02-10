@@ -13,10 +13,11 @@ router.post("/login", validationMiddleware(loginSchema), usersController.login);
 // Protected routes (require authentication)
 router.get("/users", authMiddleware, usersController.getUsers); 
 router.get("/users/:id", authMiddleware, usersController.getUser); 
+router.get("/users/:id/details", authMiddleware, usersController.getUserDetails); 
 router.put("/users/:id", authMiddleware, validationMiddleware(updateUserSchema), usersController.updateUser); 
-router.delete("/users/:id", authMiddleware,adminMiddleware, usersController.deleteUser); 
-router.patch("/users/:id/promote", authMiddleware,adminMiddleware, usersController.promoteToAdmin); 
-router.get("/myAccount", authMiddleware, usersController.myAccount); 
+router.delete("/users/:id", authMiddleware, adminMiddleware, usersController.deleteUser); 
+router.patch("/users/:id/promote", authMiddleware, usersController.promoteToAdmin); 
+router.get("/account", authMiddleware, usersController.account); 
 router.post("/reset-password", usersController.resetPassword);
 
 module.exports = router;

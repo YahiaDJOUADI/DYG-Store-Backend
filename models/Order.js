@@ -19,10 +19,13 @@ const orderSchema = new mongoose.Schema(
           required: true,
           min: 1,
         },
-        price: {
-          type: Number,
-          required: true,
-          min: 0,
+        platform: {
+          type: String,
+          enum: ["PS5", "PS4", "Xbox Series X/S", "PC"],
+          required: function () {
+            // Make platform required only if the product is a video game
+            return this.category === "Video Games";
+          },
         },
       },
     ],

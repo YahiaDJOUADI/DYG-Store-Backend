@@ -6,6 +6,8 @@ const {
   updateUserSchema,
   loginSchema,
 } = require("../validations/userValidation");
+const Order = require("../models/Order");
+const orderResource = require("../recourses/orderResource");
 
 const JWT_SECRET = "fheuifheiuhinvqpngatfvegfd";
 
@@ -158,18 +160,7 @@ exports.updateUser = async (req, res, next) => {
 // Login function
 exports.login = async (req, res, next) => {
   try {
-    // Validate request body
-    const { error, value } = loginSchema.validate(req.body, {
-      abortEarly: false,
-    });
-
-    if (error) {
-      return res
-        .status(400)
-        .json({ error: error.details.map((err) => err.message) });
-    }
-
-    const { email, password } = value;
+    const { email, password } = req.body;
 
     const user = await User.findOne({ email });
 
@@ -185,36 +176,9 @@ exports.login = async (req, res, next) => {
 
     const token = jwt.sign({ id: user._id }, JWT_SECRET);
 
-    res.json({ token });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Get the authenticated user's details
-exports.myAccount = async (req, res, next) => {
-  try {
-    const token = req.headers.authorization?.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).json({ error: "No token provided" });
-    }
-
-    const decoded = jwt.verify(token, JWT_SECRET);
-
-    if (!decoded || !decoded.id) {
-      return res.status(401).json({ error: "Invalid token" });
-    }
-
-    const user = await User.findById(decoded.id);
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.status(200).json({
+    res.json({
+      token,
       user: {
-        _id: user._id,
         userName: user.userName,
         email: user.email,
         phone: user.phone,
@@ -225,6 +189,11 @@ exports.myAccount = async (req, res, next) => {
     next(error);
   }
 };
+
+// Get the authenticated user's details
+exports.account = async(req, res, next) => {
+  return res.json(req.user)
+}
 
 // Promote a user to admin
 exports.promoteToAdmin = async (req, res, next) => {
@@ -283,6 +252,25 @@ exports.resetPassword = async (req, res, next) => {
     await user.save();
 
     res.status(200).json({ message: "Password reset successfully." });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getUserDetails = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    const user = await User.findById(id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const orders = await Order.find({ user: id }).populate('products.productId');
+    
+    res.status(200).json({
+      user,
+      orders: orders.map(order => orderResource(order))
+    });
   } catch (error) {
     next(error);
   }

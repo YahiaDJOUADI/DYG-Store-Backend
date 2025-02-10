@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
-  // Basic Product Information
   name: {
     type: String,
     required: true,
@@ -15,36 +14,47 @@ const productSchema = new mongoose.Schema({
   price: {
     type: Number,
     required: true,
-    min: 0, // Ensure price is not negative
+    min: 0, 
   },
-
-  // Inventory Management
   stock: {
     type: Number,
     required: true,
-    min: 0, // Ensure stock is not negative
+    min: 0, 
   },
-
-  // Product Category
   category: {
     type: String,
     required: true,
     trim: true,
+    enum: ["Video Games", "Gaming Gear", "Subscriptions"], // Ensure valid categories
   },
-
-  // Product Image
+  brand: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   image: {
-    type: String, // URL to the product image
+    type: String, 
     required: true,
   },
-
-  // Timestamps
+  platforms: {
+    type: [String], 
+    enum: ["PS5", "PS4", "Xbox Series X/S", "PC"],
+    default: undefined, 
+  },
   createdAt: {
     type: Date,
     default: Date.now,
   },
 });
 
-const Product = mongoose.model('Product', productSchema);
+// Middleware to enforce platform selection only for video games
+productSchema.pre("save", function (next) {
+  if (this.category === "Video Games" && (!this.platforms || this.platforms.length === 0)) {
+    return next(new Error("Platforms must be specified for Video Games"));
+  }
+  next();
+});
+
+const Product = mongoose.model("Product", productSchema);
 
 module.exports = Product;

@@ -1,5 +1,5 @@
 const Product = require("../models/Product");
-const productResource = require("../recourses/productResource");
+const productResource = require("../recourses/productResource")
 
 // Get all products (with filters and sorting)
 exports.getProducts = async (req, res, next) => {
@@ -57,6 +57,8 @@ exports.createProduct = async (req, res, next) => {
       description: req.body.description,
       stock: req.body.stock, 
       category: req.body.category,
+      brand: req.body.brand,
+      platforms: req.body.platforms,
     });
 
     res.status(201).json(productResource(product));
@@ -79,6 +81,8 @@ exports.updateProduct = async (req, res, next) => {
       description: req.body.description,
       stock: req.body.stock, 
       category: req.body.category,
+      brand: req.body.brand,
+      platforms: req.body.platforms,
     };
 
     if (req.file) {

@@ -9,5 +9,7 @@ module.exports = (product) => {
         stock: product.stock,
         image: generateUrl(product.image.replaceAll('\\', '/')),
         category: product.category,
+        brand: product.brand, 
+        platforms: product.category === "Video Games" ? product.platforms : undefined, 
     };
 };

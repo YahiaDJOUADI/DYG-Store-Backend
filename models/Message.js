@@ -19,7 +19,7 @@ const messageSchema = new mongoose.Schema(
       default: false,
     },
   },
-  { timestamps: true } // Adds createdAt and updatedAt fields
+  { timestamps: true } 
 );
 
 

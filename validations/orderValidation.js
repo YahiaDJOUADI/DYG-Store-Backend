@@ -17,21 +17,14 @@ const createOrderSchema = Joi.object({
         'number.min': 'Quantity must be at least 1.',
         'any.required': 'Quantity is required.',
       }),
-      price: Joi.number().min(0).required().messages({
-        'number.base': 'Price must be a number.',
-        'number.min': 'Price must be at least 0.',
-        'any.required': 'Price is required.',
+      platform: Joi.string().valid('PS5', 'PS4', 'Xbox Series X/S', 'PC').optional().messages({
+        'any.only': 'Platform must be one of PS5, PS4, Xbox Series X/S, or PC.',
       }),
     })
   ).required().messages({
     'array.base': 'Products must be an array.',
-    'array.includesRequiredUnknowns': 'Each product must have a productId, quantity, and price.',
+    'array.includesRequiredUnknowns': 'Each product must have a productId and quantity.',
     'any.required': 'Products are required.',
-  }),
-  totalPrice: Joi.number().min(0).required().messages({
-    'number.base': 'Total price must be a number.',
-    'number.min': 'Total price must be at least 0.',
-    'any.required': 'Total price is required.',
   }),
   name: Joi.string().required().trim().messages({
     'string.empty': 'Name is required.',
@@ -44,6 +37,9 @@ const createOrderSchema = Joi.object({
   address: Joi.string().required().trim().messages({
     'string.empty': 'Address is required.',
     'any.required': 'Address is required.',
+  }),
+  userId: Joi.string().optional().allow(null).messages({
+    'string.empty': 'User ID is not allowed to be empty.',
   }),
 });
 
