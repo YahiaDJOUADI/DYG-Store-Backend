@@ -11,9 +11,9 @@ const addUserSchema = Joi.object({
     "string.empty": "Email is required",
     "string.email": "Email must be a valid email address",
   }),
-  phone: Joi.string().required().pattern(/^\d{10}$/).messages({
+  phone: Joi.string().required().messages({
     "string.empty": "Phone number is required",
-    "string.pattern.base": "Phone number must be 10 digits",
+    
   }),
   password: Joi.string().required().min(6).messages({
     "string.empty": "Password is required",
@@ -34,7 +34,7 @@ const updateUserSchema = Joi.object({
     "string.email": "Email must be a valid email address",
   }),
   phone: Joi.string().pattern(/^\d{10}$/).messages({
-    "string.pattern.base": "Phone number must be 10 digits",
+    
   }),
   password: Joi.string().min(6).messages({
     "string.min": "Password must be at least 6 characters long",

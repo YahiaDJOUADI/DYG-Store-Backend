@@ -1,15 +1,10 @@
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const {
-  addUserSchema,
-  updateUserSchema,
-  loginSchema,
-} = require("../validations/userValidation");
 const Order = require("../models/Order");
 const orderResource = require("../recourses/orderResource");
 
-const JWT_SECRET = "fheuifheiuhinvqpngatfvegfd";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Get all users
 exports.getUsers = async (req, res, next) => {
@@ -44,18 +39,7 @@ exports.getUser = async (req, res, next) => {
 // Add a new user
 exports.addUser = async (req, res, next) => {
   try {
-    // Validate request body
-    const { error, value } = addUserSchema.validate(req.body, {
-      abortEarly: false,
-    });
-
-    if (error) {
-      return res
-        .status(400)
-        .json({ error: error.details.map((err) => err.message) });
-    }
-
-    const { userName, email, phone, password } = value;
+    const { userName, email, phone, password } = req.body;
 
     // Check if the user already exists
     const existingUser = await User.findOne({ email });
@@ -126,16 +110,7 @@ exports.updateUser = async (req, res, next) => {
       return res.status(400).json({ error: "User ID is required" });
     }
 
-    // Validate request body
-    const { error, value } = updateUserSchema.validate(req.body, {
-      abortEarly: false,
-    });
-
-    if (error) {
-      return res
-        .status(400)
-        .json({ error: error.details.map((err) => err.message) });
-    }
+    const value = req.body;
 
     // Hash the password if it's being updated
     if (value.password) {
